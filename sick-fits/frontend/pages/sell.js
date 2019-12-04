@@ -1,8 +1,9 @@
-import React from "react";
+import React from 'react';
+import CreateItem from '../components/CreateItem';
 
 const Sell = props => (
   <div>
-    <p>Hey! i m the sell page</p>
+    <CreateItem />
   </div>
 );
 
