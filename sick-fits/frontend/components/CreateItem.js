@@ -24,8 +24,8 @@ export default class CreateItem extends Component {
   state = {
     title: 'Cool shoes',
     description: '',
-    image: 'dog.jpg',
-    largeImage: 'dog-large.jpg',
+    image: '',
+    largeImage: '',
     price: 0,
   };
 
@@ -36,8 +36,22 @@ export default class CreateItem extends Component {
     this.setState({ [name]: val });
   };
 
+  uploadFile = async e => {
+    const { files } = e.target;
+    const data = new FormData();
+    data.append('file', files[0]);
+    data.append('upload_preset', 'shop-react');
+
+    const res = await fetch('https://api.cloudinary.com/v1_1/styledfits/image/upload', { method: 'POST', body: data });
+    const file = await res.json();
+    this.setState({
+      image: file.secure_url,
+      largeImage: file.eager[0].secure_url,
+    });
+  };
+
   render() {
-    const { title, price, image, largeImage, description } = this.state;
+    const { title, price, image, description } = this.state;
     return (
       <Mutation mutation={CREATE_ITEM_MUTATION} variables={this.state}>
         {(createItem, { loading, error }) => (
@@ -54,6 +68,20 @@ export default class CreateItem extends Component {
           >
             <Error error={error} />
             <fieldset disabled={loading} aria-busy={loading}>
+              <label htmlFor="file">
+                File
+                <input
+                  type="file"
+                  id="file"
+                  name="file"
+                  placeholder="upload an image..."
+                  onChange={this.uploadFile}
+                  required
+                />
+              </label>
+
+              {image && <img src={image} alt="Preview" />}
+
               <label htmlFor="title">
                 Title
                 <input
