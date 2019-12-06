@@ -6,9 +6,12 @@ import Form from './styles/Form';
 import Error from './ErrorMessage';
 
 const UPDATE_ITEM_MUTATION = gql`
-  mutation UPDATE_ITEM_MUTATION($title: String!, $description: String!, $price: Int!) {
-    UpdateItem(title: $title, description: $description, price: $price) {
+  mutation UPDATE_ITEM_MUTATION($id: ID!, $title: String, $description: String, $price: Int) {
+    updateItem(id: $id, title: $title, description: $description, price: $price) {
       id
+      title
+      description
+      price
     }
   }
 `;
@@ -34,10 +37,14 @@ export default class UpdateItem extends Component {
     this.setState({ [name]: val });
   };
 
-  updateItem = (e, updateItemMutation) => {
+  updateItem = async (e, updateItemMutation) => {
     e.preventDefault();
-    console.log('updating update');
-    console.log(this.state);
+    const res = await updateItemMutation({
+      variables: {
+        id: this.props.id,
+        ...this.state,
+      },
+    });
   };
 
   render() {
