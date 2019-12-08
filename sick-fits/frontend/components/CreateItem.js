@@ -51,9 +51,9 @@ export default class CreateItem extends Component {
   };
 
   render() {
-    const { title, price, image, description } = this.state;
+    const { title, price, image, description, largeImage } = this.state;
     return (
-      <Mutation mutation={CREATE_ITEM_MUTATION} variables={this.state}>
+      <Mutation mutation={CREATE_ITEM_MUTATION} variables={{ title, price, image, description, largeImage }}>
         {(createItem, { loading, error }) => (
           <Form
             onSubmit={async e => {

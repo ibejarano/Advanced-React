@@ -1,9 +1,9 @@
 import React from 'react';
 import Items from '../components/items';
 
-const Home = props => (
+const Home = ({ query }) => (
   <div>
-    <Items />
+    <Items page={parseInt(query.page) || 1} />
   </div>
 );
 
