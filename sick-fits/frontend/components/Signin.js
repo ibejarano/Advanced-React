@@ -5,20 +5,18 @@ import Form from './styles/Form';
 import Error from './ErrorMessage';
 import { CURRENT_USER_QUERY } from './User';
 
-const SIGNUP_MUTATION = gql`
-  mutation SIGNUP_MUTATION($email: String!, $name: String!, $password: String!) {
-    signup(email: $email, name: $name, password: $password) {
+const SIGNIN_MUTATION = gql`
+  mutation SIGNIN_MUTATION($email: String!, $password: String!) {
+    signin(email: $email, password: $password) {
       id
       email
       name
-      password
     }
   }
 `;
 
-export default class Signup extends Component {
+export default class Signin extends Component {
   state = {
-    name: '',
     email: '',
     password: '',
   };
@@ -28,9 +26,9 @@ export default class Signup extends Component {
   };
 
   render() {
-    const { name, email, password } = this.state;
+    const { email, password } = this.state;
     return (
-      <Mutation mutation={SIGNUP_MUTATION} variables={this.state} refetchQueries={[{ query: CURRENT_USER_QUERY }]}>
+      <Mutation mutation={SIGNIN_MUTATION} variables={this.state} refetchQueries={[{ query: CURRENT_USER_QUERY }]}>
         {(signup, { error, loading }) => (
           <Form
             method="post"
@@ -40,15 +38,11 @@ export default class Signup extends Component {
             }}
           >
             <fieldset disabled={loading} aria-busy={loading}>
-              <h2>Sign Up for An Account</h2>
+              <h2>Sign in into your account</h2>
               <Error error={error} />
               <label htmlFor="email">
                 Email
                 <input type="email" name="email" placeholder="email" value={email} onChange={this.saveToState} />
-              </label>
-              <label htmlFor="name">
-                Name
-                <input type="text" name="name" placeholder="name" value={name} onChange={this.saveToState} />
               </label>
               <label htmlFor="password">
                 Password
@@ -60,7 +54,7 @@ export default class Signup extends Component {
                   onChange={this.saveToState}
                 />
               </label>
-              <button type="submit">Sign Up!</button>
+              <button type="submit">Sign In</button>
             </fieldset>
           </Form>
         )}

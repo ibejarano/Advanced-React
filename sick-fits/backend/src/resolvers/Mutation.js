@@ -11,8 +11,6 @@ const Mutations = {
       },
       info
     );
-    console.log(item);
-
     return item;
   },
   updateItem(parent, args, ctx, info) {
@@ -54,13 +52,34 @@ const Mutations = {
       info
     );
     // CREATE THE JWT FOR THEM
-    const token = jwt.sign({ userId: user.id }, process.env.APP_SECRET);
+    const token = jwt.sign({ user: user.id }, process.env.APP_SECRET);
     // we set the uswt as a cookie on the response
     ctx.response.cookie('token', token, {
       httpOnly: true,
       maxAge: 1000 * 60 * 60 * 24 * 365, // a 1 year cookie
     });
     // finally return to the broser
+    return user;
+  },
+  async signin(parent, { email, password }, ctx, info) {
+    // 1 check if there is a user with that email
+    const user = await ctx.db.query.user({ where: { email } });
+    if (!user) {
+      throw new Error(`No such user found for email ${email}`);
+    }
+    // 2 check if their pass is right
+    const valid = await bcrypt.compare(password, user.password);
+    if (!valid) {
+      throw new Error('Invalid password');
+    }
+    // 3 generate the jwt token
+    const token = jwt.sign({ user: user.id }, process.env.APP_SECRET);
+    // 4 setthe cookie
+    ctx.response.cookie('token', token, {
+      httpOnly: true,
+      maxAge: 1000 * 60 * 60 * 24 * 365,
+    });
+
     return user;
   },
 };
