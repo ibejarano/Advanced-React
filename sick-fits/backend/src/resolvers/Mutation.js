@@ -190,6 +190,57 @@ const Mutations = {
       info
     );
   },
+  async addToCart(parent, args, ctx, info) {
+    // 0  users logged in
+    const {userId} = ctx.request;
+    if(!userId) {
+      throw new Error('You must be signed in!')
+    }
+    // 1 query the users current cart
+    const [existingCartItem] = await ctx.db.query.cartItems({
+      where: {
+        user: {id: userId},
+        item: {id: args.id}
+      }
+    });
+    // 2 check if that item is already in their cart & add 1
+    if(existingCartItem){
+      console.log('This item is already in their cart');
+      return ctx.db.mutation.updateCartItem({
+        where: {id: existingCartItem.id},
+        data: {quantity: existingCartItem.quantity +1}
+        }, info)
+      }
+    // 4 if not create afresh cartitem for that user!
+    return ctx.db.mutation.createCartItem({
+      data: {
+        user: {
+          connect: {id: userId}
+        } ,
+        item: {
+          connect: {id: args.id}
+        } ,
+      }
+    }, info)
+  },
+  async removeFromCart(parent, args, ctx, info){
+    // 1. find the cart item
+    const cartItem = await ctx.db.query.cartItem({
+      where: {
+        id: args.id
+      }
+    }, `{id, user { id }}` );
+    // 1.5 we found that item!?
+    if (!cartItem) throw new Error('No cartitem found!');
+    // 2 make sure they own that cart item
+    if(cartItem.user.id !== ctx.request.userId) {
+      throw new Error('Cheating huhhhhh')
+    }
+    // 3 delete that cart item
+    return ctx.db.mutation.deleteCartItem ({
+      where: {id: args.id},
+    }, info);
+  }
 };
 
 module.exports = Mutations;
