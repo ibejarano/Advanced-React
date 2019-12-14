@@ -13,9 +13,17 @@ server.express.use((req, res, next) => {
   const { token } = req.cookies;
   if (token) {
     const { user } = jwt.verify(token, process.env.APP_SECRET);
-    console.log(user);
     req.userId = user;
   }
+  next();
+});
+
+// create a middleware that populate the users at eash request
+server.express.use(async (req, res, next) => {
+  // if they arent logged in skip this
+  if (!req.userId) return next();
+  const user = await db.query.user({ where: { id: req.userId } }, '{id, email, name, permissions}');
+  req.user = user;
   next();
 });
 
